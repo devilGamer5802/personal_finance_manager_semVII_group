@@ -1,0 +1,15 @@
+{
+  "predicted_desired_savings": 8486.77,
+  "overspend_probability": 0.06,
+  "input": {
+    "Income": 60000.0,
+    "Age": 30.0,
+    "Dependents": 1.0,
+    "Occupation_encoded": 1.0,
+    "City_Tier_encoded": 1.0,
+    "Total_Expenses": 25000.0,
+    "Desired_Savings_Percentage": 15.0,
+    "Disposable_Income": 35000.0
+  },
+  "generated_at": "2025-11-17T08:23:28.697323Z"
+}

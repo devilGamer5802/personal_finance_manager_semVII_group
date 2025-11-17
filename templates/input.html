@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Input Studio · Personal Finance Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
+</head>
+<body class="theme-dark alt-page">
+  <main class="input-shell">
+    <section class="input-card">
+      <header>
+        <p class="eyebrow">Interactive Notebook Runner</p>
+        <h2>Feed float values · trigger notebook</h2>
+        <p class="muted">Same controls as the dashboard but in a distraction-free canvas. This still pushes your payload into the notebook environment and streams back the prediction JSON.</p>
+      </header>
+      <form id="input-form" class="prediction-form" autocomplete="off">
+        <div class="form-grid">
+          <label>Income (₹)
+            <input type="number" name="Income" step="100" value="60000" required>
+          </label>
+          <label>Age
+            <input type="number" name="Age" step="1" value="30" required>
+          </label>
+          <label>Dependents
+            <input type="number" name="Dependents" step="1" value="1" required>
+          </label>
+          <label>Total Expenses (₹)
+            <input type="number" name="Total_Expenses" step="100" value="25000" required>
+          </label>
+          <label>Desired Savings %
+            <input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required>
+          </label>
+          <label>Disposable Income (₹)
+            <input type="number" name="Disposable_Income" step="100" value="35000" required>
+          </label>
+          <label>Occupation
+            <select name="Occupation" id="occupation-select-alt" required>
+              <option value="" disabled selected>Loading…</option>
+            </select>
+          </label>
+          <label>City Tier
+            <select name="City_Tier" id="city-select-alt" required>
+              <option value="" disabled selected>Loading…</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="primary"><i class="ri-cpu-line"></i> Run Notebook</button>
+          <a class="link" href="/">Back to dashboard</a>
+        </div>
+      </form>
+    </section>
+    <section class="results-card">
+      <h3>Latest prediction</h3>
+      <div id="prediction-result-alt" class="prediction-output">
+        <p class="muted">Submit the form to run the notebook and stream back predictions.</p>
+      </div>
+    </section>
+  </main>
+
+
+
+  <script src="{{ url_for('static', filename='js/script.js') }}?v=2" defer></script>
+</body>
+</html>

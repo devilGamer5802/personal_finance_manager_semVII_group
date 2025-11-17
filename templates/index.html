@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Personal Finance Manager</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
+</head>
+<body class="theme-dark">
+	<div class="shell">
+		<aside class="side-rail">
+			<div class="brand">
+				<span class="logo">₹</span>
+				<div>
+					<p class="eyebrow">Personal Finance Manager</p>
+					<h1>Insights Console</h1>
+				</div>
+			</div>
+			<p class="muted">Live dashboards powered by the analytics notebook. Feed in your parameters and re-run the savings model instantly.</p>
+			<nav>
+				<a class="nav-link active" href="/"><i class="ri-bar-chart-box-line"></i> Dashboard</a>
+				<a class="nav-link" href="/input"><i class="ri-slideshow-3-line"></i> Input Studio</a>
+				<a class="nav-link" href="https://plotly.com" target="_blank" rel="noreferrer"><i class="ri-external-link-line"></i> Plotly Docs</a>
+			</nav>
+		</aside>
+
+		<main class="content">
+			<header class="hero">
+				<div>
+					<p class="eyebrow">Savings Prediction</p>
+					<h2>Personal finance insights + live inputs</h2>
+					<p class="muted">The visuals use the curated sample data baked into the notebook. Enter your float values to re-run that notebook and see personalized predictions.</p>
+					<div class="cta-row">
+						<button class="ghost" id="refresh-dashboard"><i class="ri-refresh-line"></i> Refresh Sample Analytics</button>
+						<span id="sample-status" class="muted small"></span>
+						<a class="link" href="/input">Open dedicated input page →</a>
+					</div>
+					<p id="sample-profile" class="muted small"></p>
+				</div>
+				<form id="prediction-form" class="prediction-form" autocomplete="off">
+					<div class="form-grid">
+						<label>Income (₹)
+							<input type="number" name="Income" step="100" value="60000" required>
+						</label>
+						<label>Age
+							<input type="number" name="Age" step="1" value="30" required>
+						</label>
+						<label>Dependents
+							<input type="number" name="Dependents" step="1" value="1" required>
+						</label>
+						<label>Total Expenses (₹)
+							<input type="number" name="Total_Expenses" step="100" value="25000" required>
+						</label>
+						<label>Desired Savings %
+							<input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required>
+						</label>
+						<label>Disposable Income (₹)
+							<input type="number" name="Disposable_Income" step="100" value="35000" required>
+						</label>
+						<label>Occupation
+							<select name="Occupation" id="occupation-select" required>
+								<option value="" disabled selected>Loading…</option>
+							</select>
+						</label>
+						<label>City Tier
+							<select name="City_Tier" id="city-select" required>
+								<option value="" disabled selected>Loading…</option>
+							</select>
+						</label>
+					</div>
+					<div class="form-actions">
+						<button type="submit" class="primary"><i class="ri-cpu-line"></i> Run Notebook</button>
+						<span id="run-meta" class="muted"></span>
+					</div>
+				</form>
+			</header>
+
+			<section class="chart-grid" data-charts>
+				<article class="card" id="scatter-income-expenses">
+					<div class="card-head"><i class="ri-bubble-chart-line"></i><h3>Income vs Total Expenses</h3></div>
+					<div class="chart"></div>
+				</article>
+				<article class="card" id="pie-expenses">
+					<div class="card-head"><i class="ri-pie-chart-2-line"></i><h3>Average Expense Mix</h3></div>
+					<div class="chart"></div>
+				</article>
+				<article class="card" id="bar-occupation-expense">
+					<div class="card-head"><i class="ri-briefcase-4-line"></i><h3>Spend by Occupation</h3></div>
+					<div class="chart"></div>
+				</article>
+				<article class="card" id="line-projection">
+					<div class="card-head"><i class="ri-line-chart-line"></i><h3>12-Month Savings Projection</h3></div>
+					<div class="chart"></div>
+				</article>
+				<article class="card wide" id="heatmap-corr">
+					<div class="card-head"><i class="ri-grid-line"></i><h3>Correlation Heatmap</h3></div>
+					<div class="chart"></div>
+				</article>
+			</section>
+		</main>
+	</div>
+
+	<section class="insights-float" id="insights-panel">
+		<header>
+			<p class="eyebrow">Key Insights</p>
+			<h3>Live intelligence</h3>
+		</header>
+		<ul id="insights-list"></ul>
+		<div class="prediction-output" id="prediction-result">
+			<p class="muted">Run the notebook to view personalized savings predictions and runtime.</p>
+		</div>
+	</section>
+
+
+
+	<script src="{{ url_for('static', filename='js/script.js') }}?v=2" defer></script>
+</body>
+</html>
