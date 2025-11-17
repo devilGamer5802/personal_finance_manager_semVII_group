@@ -23,9 +23,9 @@
 			</div>
 			<p class="muted">Live dashboards powered by the analytics notebook. Feed in your parameters and re-run the savings model instantly.</p>
 			<nav>
-				<a class="nav-link active" href="/"><i class="ri-bar-chart-box-line"></i> Dashboard</a>
-				<a class="nav-link" href="/input"><i class="ri-slideshow-3-line"></i> Input Studio</a>
-				<a class="nav-link" href="https://plotly.com" target="_blank" rel="noreferrer"><i class="ri-external-link-line"></i> Plotly Docs</a>
+				<a class="nav-link active" href="/">📊 Dashboard</a>
+				<a class="nav-link" href="/input">💳 Input Studio</a>
+				<a class="nav-link" href="https://plotly.com" target="_blank" rel="noreferrer">🔗 Plotly Docs</a>
 			</nav>
 		</aside>
 
@@ -36,7 +36,7 @@
 					<h2>Personal finance insights + live inputs</h2>
 					<p class="muted">The visuals use the curated sample data baked into the notebook. Enter your float values to re-run that notebook and see personalized predictions.</p>
 					<div class="cta-row">
-						<button class="ghost" id="refresh-dashboard"><i class="ri-refresh-line"></i> Refresh Sample Analytics</button>
+						<button class="ghost" id="refresh-dashboard">🔄 Refresh Sample Analytics</button>
 						<span id="sample-status" class="muted small"></span>
 						<a class="link" href="/input">Open dedicated input page →</a>
 					</div>
@@ -44,37 +44,76 @@
 				</div>
 				<form id="prediction-form" class="prediction-form" autocomplete="off">
 					<div class="form-grid">
-						<label>Income (₹)
-							<input type="number" name="Income" step="100" value="60000" required>
+						<label title="Your total monthly income before taxes and deductions">Income (₹)
+							<input type="number" name="Income" step="100" value="60000" required placeholder="e.g., 60000">
 						</label>
-						<label>Age
-							<input type="number" name="Age" step="1" value="30" required>
+						<label title="Your current age in years">Age
+							<input type="number" name="Age" step="1" value="30" required placeholder="e.g., 30">
 						</label>
-						<label>Dependents
-							<input type="number" name="Dependents" step="1" value="1" required>
+						<label title="Number of people financially dependent on you (spouse, children, parents)">Dependents
+							<input type="number" name="Dependents" step="1" value="1" required placeholder="e.g., 2">
 						</label>
-						<label>Total Expenses (₹)
-							<input type="number" name="Total_Expenses" step="100" value="25000" required>
+						<label title="Sum of all your monthly expenses across all categories below">Total Expenses (₹)
+							<input type="number" name="Total_Expenses" step="100" value="25000" required placeholder="Auto-calculated">
 						</label>
-						<label>Desired Savings %
-							<input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required>
+						<label title="Percentage of income you want to save each month (e.g., 15 means 15%)">Desired Savings %
+							<input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required placeholder="e.g., 15">
 						</label>
-						<label>Disposable Income (₹)
-							<input type="number" name="Disposable_Income" step="100" value="35000" required>
-						</label>
-						<label>Occupation
+					<label title="Auto-calculated: Income minus Total Expenses">Disposable Income (₹) <span class="muted small">(Auto)</span>
+						<input type="number" name="Disposable_Income" step="100" value="35000" required placeholder="Auto-calculated" readonly>
+					</label>
+						<label title="Your primary occupation or employment status">Occupation
 							<select name="Occupation" id="occupation-select" required>
 								<option value="" disabled selected>Loading…</option>
 							</select>
 						</label>
-						<label>City Tier
+						<label title="Metropolitan classification of your city (Tier 1: Mumbai, Delhi, etc.)">City Tier
 							<select name="City_Tier" id="city-select" required>
 								<option value="" disabled selected>Loading…</option>
 							</select>
 						</label>
 					</div>
+					
+					<details class="expense-details">
+						<summary>💰 Expense Breakdown (Optional - for detailed analysis)</summary>
+						<div class="form-grid">
+							<label title="Monthly house rent or mortgage payment">Rent (₹)
+								<input type="number" name="Rent" step="100" value="0" placeholder="e.g., 10000">
+							</label>
+							<label title="EMI payments for loans (home, car, personal, etc.)">Loan Repayment (₹)
+								<input type="number" name="Loan_Repayment" step="100" value="0" placeholder="e.g., 5000">
+							</label>
+							<label title="Health, life, vehicle insurance premiums">Insurance (₹)
+								<input type="number" name="Insurance" step="100" value="0" placeholder="e.g., 2000">
+							</label>
+							<label title="Monthly grocery and food shopping costs">Groceries (₹)
+								<input type="number" name="Groceries" step="100" value="0" placeholder="e.g., 6000">
+							</label>
+							<label title="Commute costs (fuel, public transport, parking, etc.)">Transport (₹)
+								<input type="number" name="Transport" step="100" value="0" placeholder="e.g., 3000">
+							</label>
+							<label title="Restaurant meals, food delivery, dining out">Eating Out (₹)
+								<input type="number" name="Eating_Out" step="100" value="0" placeholder="e.g., 2000">
+							</label>
+							<label title="Movies, streaming subscriptions, hobbies, recreation">Entertainment (₹)
+								<input type="number" name="Entertainment" step="100" value="0" placeholder="e.g., 1500">
+							</label>
+							<label title="Electricity, water, gas, internet, phone bills">Utilities (₹)
+								<input type="number" name="Utilities" step="100" value="0" placeholder="e.g., 2500">
+							</label>
+							<label title="Medical expenses, medicines, doctor visits">Healthcare (₹)
+								<input type="number" name="Healthcare" step="100" value="0" placeholder="e.g., 1500">
+							</label>
+							<label title="School fees, tuition, courses, training">Education (₹)
+								<input type="number" name="Education" step="100" value="0" placeholder="e.g., 3000">
+							</label>
+							<label title="Other expenses not covered in above categories">Miscellaneous (₹)
+								<input type="number" name="Miscellaneous" step="100" value="0" placeholder="e.g., 1000">
+							</label>
+						</div>
+					</details>
 					<div class="form-actions">
-						<button type="submit" class="primary"><i class="ri-cpu-line"></i> Run Notebook</button>
+						<button type="submit" class="primary">⚡ Run Notebook</button>
 						<span id="run-meta" class="muted"></span>
 					</div>
 				</form>
@@ -82,23 +121,23 @@
 
 			<section class="chart-grid" data-charts>
 				<article class="card" id="scatter-income-expenses">
-					<div class="card-head"><i class="ri-bubble-chart-line"></i><h3>Income vs Total Expenses</h3></div>
+					<div class="card-head">📈<h3>Income vs Total Expenses</h3></div>
 					<div class="chart"></div>
 				</article>
 				<article class="card" id="pie-expenses">
-					<div class="card-head"><i class="ri-pie-chart-2-line"></i><h3>Average Expense Mix</h3></div>
+					<div class="card-head">🥧<h3>Average Expense Mix</h3></div>
 					<div class="chart"></div>
 				</article>
 				<article class="card" id="bar-occupation-expense">
-					<div class="card-head"><i class="ri-briefcase-4-line"></i><h3>Spend by Occupation</h3></div>
+					<div class="card-head">💼<h3>Spend by Occupation</h3></div>
 					<div class="chart"></div>
 				</article>
 				<article class="card" id="line-projection">
-					<div class="card-head"><i class="ri-line-chart-line"></i><h3>12-Month Savings Projection</h3></div>
+					<div class="card-head">📉<h3>12-Month Savings Projection</h3></div>
 					<div class="chart"></div>
 				</article>
 				<article class="card wide" id="heatmap-corr">
-					<div class="card-head"><i class="ri-grid-line"></i><h3>Correlation Heatmap</h3></div>
+					<div class="card-head">🔥<h3>Correlation Heatmap</h3></div>
 					<div class="chart"></div>
 				</article>
 			</section>
@@ -110,9 +149,22 @@
 			<p class="eyebrow">Key Insights</p>
 			<h3>Live intelligence</h3>
 		</header>
+		<div id="insights-loading" class="insights-loading" style="display: none;">
+			<div class="loading-spinner"></div>
+			<p>Analyzing your finances...</p>
+		</div>
 		<ul id="insights-list"></ul>
 		<div class="prediction-output" id="prediction-result">
 			<p class="muted">Run the notebook to view personalized savings predictions and runtime.</p>
+		</div>
+		<div id="notebook-runtime" class="muted" style="margin-top: 12px; font-size: 0.85rem; text-align: center;"></div>
+		<div id="expense-breakdown" class="expense-breakdown" style="display: none;">
+			<h4>📊 Expense Category Analysis</h4>
+			<div id="expense-categories"></div>
+		</div>
+		<div id="recommendations" class="recommendations-panel" style="display: none;">
+			<h4>💡 Personalized Recommendations</h4>
+			<ul id="recommendations-list"></ul>
 		</div>
 	</section>
 

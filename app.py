@@ -150,7 +150,10 @@ def execute_notebook(payload: Dict[str, Any]) -> Dict[str, Any]:
     start = time.time()
     with NOTEBOOK_LOCK:
         prev_value = os.environ.get("USER_INPUT_PAYLOAD")
-        os.environ["USER_INPUT_PAYLOAD"] = json.dumps(payload)
+        # Convert payload to JSON string and log it
+        payload_json = json.dumps(payload)
+        print(f"Setting USER_INPUT_PAYLOAD: {payload_json}")
+        os.environ["USER_INPUT_PAYLOAD"] = payload_json
         try:
             print(f"Reading notebook from {NOTEBOOK_PATH}")
             nb = nbformat.read(NOTEBOOK_PATH.open("r", encoding="utf-8"), as_version=4)
@@ -196,6 +199,15 @@ def input_page():
 
 @app.get("/api/sample-dashboard")
 def sample_dashboard():
+    # Clear user_prediction.json when refreshing dashboard
+    result_path = BASE_DIR / "user_prediction.json"
+    if result_path.exists():
+        try:
+            result_path.unlink()
+            app.logger.info("Deleted user_prediction.json on dashboard refresh")
+        except Exception as e:
+            app.logger.warning(f"Could not delete prediction file: {e}")
+    
     try:
         snapshot: Dict[str, Any] = build_dashboard_snapshot()
         return jsonify(snapshot)
@@ -212,6 +224,17 @@ def run_notebook_endpoint():
     if missing:
         # allow categorical fallbacks; front-end will send Occupation/City_Tier as well
         pass
+    
+    # Clear previous prediction file before running new prediction
+    result_path = BASE_DIR / "user_prediction.json"
+    try:
+        # Delete the file completely to ensure fresh start
+        if result_path.exists():
+            result_path.unlink()
+        app.logger.info("Deleted previous user_prediction.json")
+    except Exception as e:
+        app.logger.warning(f"Could not delete old prediction file: {e}")
+    
     try:
         app.logger.info("Starting notebook execution...")
         result: Dict[str, Any] = execute_notebook(payload)

@@ -12,60 +12,244 @@
   <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
 </head>
 <body class="theme-dark alt-page">
-  <main class="input-shell">
-    <section class="input-card">
-      <header>
-        <p class="eyebrow">Interactive Notebook Runner</p>
-        <h2>Feed float values · trigger notebook</h2>
-        <p class="muted">Same controls as the dashboard but in a distraction-free canvas. This still pushes your payload into the notebook environment and streams back the prediction JSON.</p>
-      </header>
-      <form id="input-form" class="prediction-form" autocomplete="off">
-        <div class="form-grid">
-          <label>Income (₹)
-            <input type="number" name="Income" step="100" value="60000" required>
-          </label>
-          <label>Age
-            <input type="number" name="Age" step="1" value="30" required>
-          </label>
-          <label>Dependents
-            <input type="number" name="Dependents" step="1" value="1" required>
-          </label>
-          <label>Total Expenses (₹)
-            <input type="number" name="Total_Expenses" step="100" value="25000" required>
-          </label>
-          <label>Desired Savings %
-            <input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required>
-          </label>
-          <label>Disposable Income (₹)
-            <input type="number" name="Disposable_Income" step="100" value="35000" required>
-          </label>
-          <label>Occupation
-            <select name="Occupation" id="occupation-select-alt" required>
-              <option value="" disabled selected>Loading…</option>
-            </select>
-          </label>
-          <label>City Tier
-            <select name="City_Tier" id="city-select-alt" required>
-              <option value="" disabled selected>Loading…</option>
-            </select>
-          </label>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="primary"><i class="ri-cpu-line"></i> Run Notebook</button>
-          <a class="link" href="/">Back to dashboard</a>
-        </div>
-      </form>
-    </section>
-    <section class="results-card">
-      <h3>Latest prediction</h3>
-      <div id="prediction-result-alt" class="prediction-output">
-        <p class="muted">Submit the form to run the notebook and stream back predictions.</p>
+  <nav class="top-nav">
+    <div class="brand-mini">
+      <span class="logo">₹</span>
+      <h1>Personal Finance Manager</h1>
+    </div>
+    <a class="nav-link" href="/">📊 Dashboard</a>
+  </nav>
+  
+  <main class="input-container">
+    <section class="input-hero">
+      <div class="hero-content">
+        <p class="eyebrow">Input Studio</p>
+        <h2>Comprehensive Financial Analysis</h2>
+        <p class="description">Enter your complete financial profile to receive personalized insights, expense breakdowns, and actionable recommendations. All fields with <span class="required-indicator">*</span> are required.</p>
       </div>
     </section>
+
+    <div class="content-wrapper">
+      <section class="form-section">
+        <form id="input-form" class="modern-form" autocomplete="off">
+          <!-- Basic Information -->
+          <div class="form-section-header">
+            <h3>👤 Basic Information</h3>
+            <p class="section-description">Enter your personal and financial profile</p>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-field">
+              <label title="Your total monthly income before taxes and deductions">
+                Monthly Income (₹) <span class="required">*</span>
+              </label>
+              <input type="number" name="Income" step="100" value="60000" required placeholder="60,000">
+              <span class="field-hint">Your gross monthly salary or income</span>
+            </div>
+            
+            <div class="form-field">
+              <label title="Your current age in years">
+                Age <span class="required">*</span>
+              </label>
+              <input type="number" name="Age" step="1" min="18" max="100" value="30" required placeholder="30">
+              <span class="field-hint">Must be 18 or above</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label title="Number of people financially dependent on you">
+                Dependents <span class="required">*</span>
+              </label>
+              <input type="number" name="Dependents" step="1" min="0" max="10" value="1" required placeholder="2">
+              <span class="field-hint">Spouse, children, parents, etc.</span>
+            </div>
+            
+            <div class="form-field">
+              <label title="Percentage of income you want to save monthly">
+                Desired Savings % <span class="required">*</span>
+              </label>
+              <input type="number" name="Desired_Savings_Percentage" step="0.5" min="0" max="100" value="15" required placeholder="15">
+              <span class="field-hint">Recommended: 15-20%</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label title="Your primary occupation or employment status">
+                Occupation <span class="required">*</span>
+              </label>
+              <select name="Occupation" id="occupation-select-alt" required>
+                <option value="" disabled selected>Select your occupation</option>
+              </select>
+            </div>
+            
+            <div class="form-field">
+              <label title="Metropolitan classification of your city">
+                City Tier <span class="required">*</span>
+              </label>
+              <select name="City_Tier" id="city-select-alt" required>
+                <option value="" disabled selected>Select city tier</option>
+              </select>
+              <span class="field-hint">Tier 1: Metro cities</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field full-width">
+              <label title="Sum of all your monthly expenses">
+                Total Monthly Expenses (₹) <span class="required">*</span>
+              </label>
+              <input type="number" name="Total_Expenses" step="100" min="0" value="25000" required placeholder="25,000">
+              <span class="field-hint">Sum of rent, utilities, food, transport, etc. (auto-calculated if you fill breakdown below)</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field full-width">
+              <label title="Auto-calculated: Income minus Total Expenses">
+                Disposable Income (₹) <span class="muted small">(Auto)</span>
+              </label>
+              <input type="number" name="Disposable_Income" step="100" min="0" value="35000" required placeholder="Auto-calculated" readonly>
+              <span class="field-hint">Automatically calculated: Income - Total Expenses</span>
+            </div>
+          </div>
+
+          <!-- Expense Breakdown -->
+          <div class="divider"></div>
+          
+          <details class="expense-accordion" open>
+            <summary class="accordion-header">
+              <div>
+                <h3>💳 Detailed Expense Breakdown</h3>
+                <p class="section-description">Optional but recommended for accurate recommendations</p>
+              </div>
+              <span class="toggle-icon">▼</span>
+            </summary>
+            
+            <div class="accordion-content">
+              <div class="expense-category-section">
+                <h4>🏠 Housing & Utilities</h4>
+                <div class="form-row">
+                  <div class="form-field">
+                    <label title="Monthly rent or mortgage payment">Rent (₹)</label>
+                    <input type="number" name="Rent" step="100" min="0" value="0" placeholder="10,000">
+                  </div>
+                  <div class="form-field">
+                    <label title="Electricity, water, gas, internet">Utilities (₹)</label>
+                    <input type="number" name="Utilities" step="100" min="0" value="0" placeholder="2,500">
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-category-section">
+                <h4>🛡️ Financial Obligations</h4>
+                <div class="form-row">
+                  <div class="form-field">
+                    <label title="EMI for home, car, personal loans">Loan Repayment (₹)</label>
+                    <input type="number" name="Loan_Repayment" step="100" min="0" value="0" placeholder="5,000">
+                  </div>
+                  <div class="form-field">
+                    <label title="Health, life, vehicle insurance">Insurance (₹)</label>
+                    <input type="number" name="Insurance" step="100" min="0" value="0" placeholder="2,000">
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-category-section">
+                <h4>🍽️ Food & Dining</h4>
+                <div class="form-row">
+                  <div class="form-field">
+                    <label title="Monthly grocery shopping">Groceries (₹)</label>
+                    <input type="number" name="Groceries" step="100" min="0" value="0" placeholder="6,000">
+                  </div>
+                  <div class="form-field">
+                    <label title="Restaurants, food delivery">Eating Out (₹)</label>
+                    <input type="number" name="Eating_Out" step="100" min="0" value="0" placeholder="2,000">
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-category-section">
+                <h4>🚗 Transportation & Entertainment</h4>
+                <div class="form-row">
+                  <div class="form-field">
+                    <label title="Fuel, public transport, parking">Transport (₹)</label>
+                    <input type="number" name="Transport" step="100" min="0" value="0" placeholder="3,000">
+                  </div>
+                  <div class="form-field">
+                    <label title="Movies, subscriptions, hobbies">Entertainment (₹)</label>
+                    <input type="number" name="Entertainment" step="100" min="0" value="0" placeholder="1,500">
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-category-section">
+                <h4>❤️ Health & Education</h4>
+                <div class="form-row">
+                  <div class="form-field">
+                    <label title="Medical, medicines, checkups">Healthcare (₹)</label>
+                    <input type="number" name="Healthcare" step="100" min="0" value="0" placeholder="1,500">
+                  </div>
+                  <div class="form-field">
+                    <label title="Tuition, courses, training">Education (₹)</label>
+                    <input type="number" name="Education" step="100" min="0" value="0" placeholder="3,000">
+                  </div>
+                </div>
+              </div>
+
+              <div class="expense-category-section">
+                <h4>📝 Other Expenses</h4>
+                <div class="form-row">
+                  <div class="form-field full-width">
+                    <label title="Other expenses not categorized above">Miscellaneous (₹)</label>
+                    <input type="number" name="Miscellaneous" step="100" min="0" value="0" placeholder="1,000">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div class="form-actions-sticky">
+            <button type="submit" class="primary-large">
+              ✨
+              Generate Analysis
+            </button>
+            <button type="reset" class="secondary">
+              🔄
+              Reset Form
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="results-section">
+        <div class="results-sticky">
+          <h3>📈 Your Financial Analysis</h3>
+          
+          <div id="prediction-result-alt" class="prediction-output">
+            <div class="empty-state">
+              📋
+              <p>Submit the form to generate your personalized financial analysis</p>
+              <span class="muted">Analysis includes savings predictions, risk assessment, and actionable recommendations</span>
+            </div>
+          </div>
+          <div id="notebook-runtime-alt" class="muted" style="margin-top: 12px; font-size: 0.85rem; text-align: center;"></div>
+
+          <div id="expense-breakdown-alt" class="expense-breakdown" style="display: none;">
+            <h4>📊 Category Analysis</h4>
+            <div id="expense-categories-alt"></div>
+          </div>
+
+          <div id="recommendations-alt" class="recommendations-panel" style="display: none;">
+            <h4>💡 Recommendations</h4>
+            <ul id="recommendations-list-alt"></ul>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
 
-
-
-  <script src="{{ url_for('static', filename='js/script.js') }}?v=2" defer></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}?v=3" defer></script>
 </body>
 </html>

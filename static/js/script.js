@@ -1,6 +1,4 @@
 const domRefs = {
-	overlay: null,
-	loadingText: null,
 	insightsList: null,
 	predictionResultMain: null,
 	predictionResultAlt: null,
@@ -18,25 +16,55 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (dashboardCharts) {
 		loadSampleDashboard();
 		document.getElementById('refresh-dashboard')?.addEventListener('click', loadSampleDashboard);
-		document.getElementById('prediction-form')?.addEventListener('submit', (e) => submitPrediction(e));
+		const predForm = document.getElementById('prediction-form');
+		if (predForm) {
+			predForm.addEventListener('submit', (e) => submitPrediction(e));
+			setupDisposableIncomeCalculation(predForm);
+		}
 	}
 
 	const inputForm = document.getElementById('input-form');
 	if (inputForm) {
 		loadSampleDashboard();
 		inputForm.addEventListener('submit', (e) => submitPrediction(e));
+		setupDisposableIncomeCalculation(inputForm);
 	}
 });
 
 function captureDomRefs(){
-	domRefs.overlay = document.getElementById('loading-overlay');
-	domRefs.loadingText = document.getElementById('loading-text');
 	domRefs.insightsList = document.getElementById('insights-list');
 	domRefs.predictionResultMain = document.getElementById('prediction-result');
 	domRefs.predictionResultAlt = document.getElementById('prediction-result-alt');
 	domRefs.runMeta = document.getElementById('run-meta');
 	domRefs.sampleStatus = document.getElementById('sample-status');
 	domRefs.sampleProfile = document.getElementById('sample-profile');
+}
+
+function setupDisposableIncomeCalculation(form) {
+	const incomeInput = form.querySelector('[name="Income"]');
+	const expensesInput = form.querySelector('[name="Total_Expenses"]');
+	const disposableInput = form.querySelector('[name="Disposable_Income"]');
+	
+	if (!incomeInput || !expensesInput || !disposableInput) return;
+	
+	// Make disposable income read-only
+	disposableInput.readOnly = true;
+	disposableInput.style.backgroundColor = '#1a1a1a';
+	disposableInput.style.cursor = 'not-allowed';
+	
+	function updateDisposableIncome() {
+		const income = parseFloat(incomeInput.value) || 0;
+		const expenses = parseFloat(expensesInput.value) || 0;
+		const disposable = Math.max(0, income - expenses);
+		disposableInput.value = disposable;
+	}
+	
+	// Calculate on input change
+	incomeInput.addEventListener('input', updateDisposableIncome);
+	expensesInput.addEventListener('input', updateDisposableIncome);
+	
+	// Initial calculation
+	updateDisposableIncome();
 }
 
 async function loadSampleDashboard(){
@@ -255,6 +283,18 @@ function renderHeatmap(data){
 	}, {responsive: true});
 }
 
+function showInsightsLoading() {
+	const loadingEl = document.getElementById('insights-loading');
+	if (loadingEl) loadingEl.style.display = 'block';
+	if (domRefs.insightsList) domRefs.insightsList.style.display = 'none';
+}
+
+function hideInsightsLoading() {
+	const loadingEl = document.getElementById('insights-loading');
+	if (loadingEl) loadingEl.style.display = 'none';
+	if (domRefs.insightsList) domRefs.insightsList.style.display = 'flex';
+}
+
 function renderInsights(items){
 	if (!domRefs.insightsList) return;
 	domRefs.insightsList.innerHTML = '';
@@ -263,13 +303,16 @@ function renderInsights(items){
 		li.textContent = text;
 		domRefs.insightsList.appendChild(li);
 	});
+	hideInsightsLoading();
 }
 
 async function submitPrediction(event){
 	event.preventDefault();
 	const form = event.target;
 	const payload = buildPayload(form);
-	showLoader('Executing notebook via nbclient… (~30s)');
+	
+	// Show loading in insights panel
+	showInsightsLoading();
 	
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
@@ -291,13 +334,9 @@ async function submitPrediction(event){
 	} catch (err) {
 		console.error(err);
 		clearTimeout(timeoutId);
-		if (err.name === 'AbortError') {
-			updatePredictionUI({ error: 'Request timed out. The notebook is taking longer than expected.' });
-		} else {
-			updatePredictionUI({ error: err.message });
-		}
+		updatePredictionUI({ error: err.message || 'An error occurred' });
 	} finally {
-		hideLoader();
+		hideInsightsLoading();
 	}
 }
 
@@ -305,8 +344,17 @@ function buildPayload(form){
 	const fd = new FormData(form);
 	const payload = {};
 	fd.forEach((value, key) => { payload[key] = value; });
-	['Income','Age','Dependents','Total_Expenses','Desired_Savings_Percentage','Disposable_Income'].forEach(key => {
-		if (payload[key] !== undefined) payload[key] = parseFloat(payload[key]);
+	// Parse numeric fields
+	const numericFields = [
+		'Income','Age','Dependents','Total_Expenses','Desired_Savings_Percentage','Disposable_Income',
+		'Rent','Loan_Repayment','Insurance','Groceries','Transport','Eating_Out',
+		'Entertainment','Utilities','Healthcare','Education','Miscellaneous'
+	];
+	numericFields.forEach(key => {
+		if (payload[key] !== undefined) {
+			const val = parseFloat(payload[key]);
+			payload[key] = isNaN(val) ? 0 : val;
+		}
 	});
 	return payload;
 }
@@ -317,16 +365,40 @@ function updatePredictionUI(data){
 	const content = buildPredictionMarkup(data);
 	if (targetMain) targetMain.innerHTML = content;
 	if (targetAlt) targetAlt.innerHTML = content;
-	if (domRefs.runMeta && data.elapsed_ms) domRefs.runMeta.textContent = `Notebook runtime: ${data.elapsed_ms} ms`;
 	
-	// Update charts if provided
+	// Show runtime only in insights section (both main and alt pages)
+	const runtimeEl = document.getElementById('notebook-runtime');
+	const runtimeAltEl = document.getElementById('notebook-runtime-alt');
+	if (data.elapsed_ms) {
+		const runtimeText = `Notebook runtime: ${data.elapsed_ms} ms`;
+		if (runtimeEl) runtimeEl.textContent = runtimeText;
+		if (runtimeAltEl) runtimeAltEl.textContent = runtimeText;
+	}
+	
+	// Clear the run-meta if it exists (remove duplicate)
+	if (domRefs.runMeta) domRefs.runMeta.textContent = '';
+	
+	// Update charts if provided (this ensures charts reflect user input)
 	if (data.charts) {
-		renderCharts(data.charts);
+		const dashboardCharts = document.querySelector('[data-charts]');
+		if (dashboardCharts) {
+			renderCharts(data.charts);
+		}
 	}
 	
 	// Update insights if provided
 	if (data.insights) {
 		renderInsights(data.insights);
+	}
+	
+	// Update expense breakdown if provided
+	if (data.expense_breakdown) {
+		renderExpenseBreakdown(data.expense_breakdown);
+	}
+	
+	// Update recommendations if provided
+	if (data.recommendations) {
+		renderRecommendations(data.recommendations);
 	}
 }
 
@@ -336,23 +408,101 @@ function buildPredictionMarkup(data){
 	}
 	const pred = data.predicted_desired_savings ? Number(data.predicted_desired_savings).toLocaleString('en-IN') : 'N/A';
 	const prob = typeof data.overspend_probability === 'number' ? `${(data.overspend_probability * 100).toFixed(1)}%` : 'N/A';
-	const elapsed = data.elapsed_ms ? `${data.elapsed_ms} ms` : '—';
 	return `
 		<h4>Predicted Desired Savings</h4>
 		<p><strong>₹${pred}</strong> per month</p>
 		<p>Overspend probability: <strong>${prob}</strong></p>
-		<p class="muted">Notebook runtime: ${elapsed}</p>
 	`;
 }
 
-function showLoader(text){
-	if (!domRefs.overlay) return;
-	domRefs.overlay.hidden = false;
-	if (domRefs.loadingText) domRefs.loadingText.textContent = text;
+
+
+function renderExpenseBreakdown(breakdown){
+	const mainContainer = document.getElementById('expense-breakdown');
+	const altContainer = document.getElementById('expense-breakdown-alt');
+	const mainCategories = document.getElementById('expense-categories');
+	const altCategories = document.getElementById('expense-categories-alt');
+	
+	if (!breakdown || !breakdown.categories || breakdown.categories.length === 0) {
+		if (mainContainer) mainContainer.style.display = 'none';
+		if (altContainer) altContainer.style.display = 'none';
+		return;
+	}
+	
+	const html = breakdown.categories.map(cat => {
+		const statusClass = cat.status.includes('🔴') ? 'status-high' : 
+		                    cat.status.includes('🟡') ? 'status-moderate' : 'status-good';
+		return `
+			<div class="expense-category ${statusClass}">
+				<div class="category-header">
+					<h5>${cat.category}</h5>
+					<span class="status-badge">${cat.status}</span>
+				</div>
+				<div class="category-details">
+					<div class="detail-row">
+						<span>Current:</span>
+						<strong>₹${cat.current_amount.toLocaleString('en-IN')} (${cat.current_percentage}%)</strong>
+					</div>
+					<div class="detail-row">
+						<span>Recommended:</span>
+						<span>₹${cat.recommended_amount.toLocaleString('en-IN')} (${cat.recommended_percentage}%)</span>
+					</div>
+					<div class="detail-row">
+						<span>Dataset Average:</span>
+						<span>₹${cat.dataset_average.toLocaleString('en-IN')}</span>
+					</div>
+					${cat.potential_saving > 0 ? `
+					<div class="detail-row saving">
+						<span>💰 Potential Saving:</span>
+						<strong>₹${cat.potential_saving.toLocaleString('en-IN')}/month</strong>
+					</div>` : ''}
+				</div>
+				<div class="category-advice">
+					${cat.advice.map(a => `<p>${a}</p>`).join('')}
+				</div>
+			</div>
+		`;
+	}).join('');
+	
+	const summaryHtml = `
+		<div class="breakdown-summary">
+			<p><strong>${breakdown.summary}</strong></p>
+			${breakdown.total_potential_savings > 0 ? 
+				`<p class="highlight">Annual potential: ₹${(breakdown.total_potential_savings * 12).toLocaleString('en-IN')}</p>` : ''}
+		</div>
+	`;
+	
+	if (mainCategories) {
+		mainCategories.innerHTML = summaryHtml + html;
+		mainContainer.style.display = 'block';
+	}
+	if (altCategories) {
+		altCategories.innerHTML = summaryHtml + html;
+		altContainer.style.display = 'block';
+	}
 }
 
-function hideLoader(){
-	if (!domRefs.overlay) return;
-	domRefs.overlay.hidden = true;
+function renderRecommendations(recommendations){
+	const mainList = document.getElementById('recommendations-list');
+	const altList = document.getElementById('recommendations-list-alt');
+	const mainPanel = document.getElementById('recommendations');
+	const altPanel = document.getElementById('recommendations-alt');
+	
+	if (!recommendations || recommendations.length === 0) {
+		if (mainPanel) mainPanel.style.display = 'none';
+		if (altPanel) altPanel.style.display = 'none';
+		return;
+	}
+	
+	const html = recommendations.map(rec => `<li>${rec}</li>`).join('');
+	
+	if (mainList) {
+		mainList.innerHTML = html;
+		mainPanel.style.display = 'block';
+	}
+	if (altList) {
+		altList.innerHTML = html;
+		altPanel.style.display = 'block';
+	}
 }
 
