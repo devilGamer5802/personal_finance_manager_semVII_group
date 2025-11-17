@@ -112,7 +112,7 @@ SAMPLE_HEATMAP: Dict[str, Any] = {
 
 SAMPLE_INSIGHTS = [
     "Sample household allocates 42% of income to rent and necessities.",
-    "Savings rate fixed at 15% per Step 7 defaults.",
+    "Savings rate fixed at 15%.",
     "Disposable income of ₹35,000 keeps overspend risk low.",
     "Upgrade the inputs to see personalized notebook predictions.",
 ]

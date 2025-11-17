@@ -1,15 +1,193 @@
 {
-  "predicted_desired_savings": 8486.77,
+  "predicted_desired_savings": -541.33,
   "overspend_probability": 0.06,
   "input": {
     "Income": 60000.0,
     "Age": 30.0,
-    "Dependents": 1.0,
+    "Dependents": 0.0,
     "Occupation_encoded": 1.0,
     "City_Tier_encoded": 1.0,
-    "Total_Expenses": 25000.0,
-    "Desired_Savings_Percentage": 15.0,
-    "Disposable_Income": 35000.0
+    "Total_Expenses": 55000.0,
+    "Desired_Savings_Percentage": 45.0,
+    "Disposable_Income": 0.0,
+    "predicted_savings": -541.3284622653425
   },
-  "generated_at": "2025-11-17T08:23:28.697323Z"
+  "generated_at": "2025-11-17T09:16:50.485711Z",
+  "charts": {
+    "scatter": {
+      "income": [
+        25170.37039783255,
+        21623.29987373365,
+        40819.93293763488,
+        33836.24298853197,
+        28898.73488457589,
+        13587.991306961654,
+        12293.815997651232,
+        21548.64537456048,
+        18849.071208224887,
+        26400.912746056787
+      ],
+      "totalExpenses": [
+        17687.136331013484,
+        14189.026378957298,
+        33329.49691453229,
+        27292.807228138845,
+        19326.312802858854,
+        10517.94802281263,
+        8331.576484575546,
+        19851.960187633824,
+        13939.805377258435,
+        16171.203059255791
+      ],
+      "cityTier": [
+        "Tier_2",
+        "Tier_2",
+        "Tier_2",
+        "Tier_2",
+        "Tier_2",
+        "Tier_1",
+        "Tier_2",
+        "Tier_2",
+        "Tier_2",
+        "Tier_3"
+      ],
+      "savingsPct": [
+        6.268934727757069,
+        9.121335330959193,
+        10.215034755223105,
+        8.281444967270565,
+        9.71066334919318,
+        8.852478494360493,
+        6.526150405242303,
+        6.55530425745377,
+        5.500857305615535,
+        6.000657591858854
+      ]
+    },
+    "pie": {
+      "labels": [
+        "Rent",
+        "Loan_Repayment",
+        "Insurance",
+        "Groceries",
+        "Transport",
+        "Eating_Out",
+        "Entertainment",
+        "Utilities",
+        "Healthcare",
+        "Education",
+        "Miscellaneous"
+      ],
+      "values": [
+        9115.49,
+        2049.8,
+        1455.03,
+        5205.67,
+        2704.47,
+        1461.86,
+        1448.85,
+        2504.98,
+        1663.08,
+        2498.35,
+        830.55
+      ]
+    },
+    "bar": {
+      "labels": [
+        "Professional",
+        "Self_Employed",
+        "Student",
+        "Retired"
+      ],
+      "values": [
+        31232.29,
+        31185.28,
+        31089.84,
+        30248.63
+      ]
+    },
+    "projection": {
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "values": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "heatmap": {
+      "labels": [
+        "Income",
+        "Total_Expenses",
+        "Desired_Savings_Percentage",
+        "Disposable_Income",
+        "Dependents"
+      ],
+      "matrix": [
+        [
+          1.0,
+          0.9829850646017413,
+          0.7762949525156605,
+          0.8815182356304104,
+          0.01692630156762862
+        ],
+        [
+          0.9829850646017413,
+          1.0,
+          0.7643058789954148,
+          0.7797921554819833,
+          0.04559161384953284
+        ],
+        [
+          0.7762949525156605,
+          0.7643058789954148,
+          1.0,
+          0.6811834325856952,
+          0.014610021837285131
+        ],
+        [
+          0.8815182356304104,
+          0.7797921554819833,
+          0.6811834325856952,
+          1.0,
+          -0.05950150179771662
+        ],
+        [
+          0.01692630156762862,
+          0.04559161384953284,
+          0.014610021837285131,
+          -0.05950150179771662,
+          1.0
+        ]
+      ]
+    }
+  },
+  "insights": [
+    "Your expenses are 91.7% of your income (₹55,000 / ₹60,000).",
+    "⚠️ Gap: Only ₹5,000 available, but ₹27,000 needed for 45.0% savings goal (shortfall: ₹22,000).",
+    "❌ Negative predicted savings: Your 45.0% target is unachievable with current expenses. Reduce expenses or adjust savings goal.",
+    "✓ Low overspending risk (6.0%). Income covers expenses + savings goals.",
+    "📊 Monthly deficit: -₹541.33 (-₹6,495.94 annually). Immediate action required."
+  ]
 }

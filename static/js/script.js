@@ -318,6 +318,16 @@ function updatePredictionUI(data){
 	if (targetMain) targetMain.innerHTML = content;
 	if (targetAlt) targetAlt.innerHTML = content;
 	if (domRefs.runMeta && data.elapsed_ms) domRefs.runMeta.textContent = `Notebook runtime: ${data.elapsed_ms} ms`;
+	
+	// Update charts if provided
+	if (data.charts) {
+		renderCharts(data.charts);
+	}
+	
+	// Update insights if provided
+	if (data.insights) {
+		renderInsights(data.insights);
+	}
 }
 
 function buildPredictionMarkup(data){
