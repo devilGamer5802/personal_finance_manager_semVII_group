@@ -295,6 +295,32 @@ function hideInsightsLoading() {
 	if (domRefs.insightsList) domRefs.insightsList.style.display = 'flex';
 }
 
+function clearPreviousResults() {
+	// Clear prediction results
+	const targetMain = domRefs.predictionResultMain;
+	const targetAlt = domRefs.predictionResultAlt;
+	if (targetMain) targetMain.innerHTML = '<p class="muted">Processing...</p>';
+	if (targetAlt) targetAlt.innerHTML = '<p class="muted">Processing...</p>';
+	
+	// Clear runtime
+	const runtimeEl = document.getElementById('notebook-runtime');
+	const runtimeAltEl = document.getElementById('notebook-runtime-alt');
+	if (runtimeEl) runtimeEl.textContent = '';
+	if (runtimeAltEl) runtimeAltEl.textContent = '';
+	
+	// Clear recommendations
+	const mainRecommendations = document.getElementById('recommendations');
+	const altRecommendations = document.getElementById('recommendations-alt');
+	if (mainRecommendations) mainRecommendations.style.display = 'none';
+	if (altRecommendations) altRecommendations.style.display = 'none';
+	
+	// Clear expense breakdown
+	const mainExpenses = document.getElementById('expense-breakdown');
+	const altExpenses = document.getElementById('expense-breakdown-alt');
+	if (mainExpenses) mainExpenses.style.display = 'none';
+	if (altExpenses) altExpenses.style.display = 'none';
+}
+
 function renderInsights(items){
 	if (!domRefs.insightsList) return;
 	domRefs.insightsList.innerHTML = '';
@@ -310,6 +336,9 @@ async function submitPrediction(event){
 	event.preventDefault();
 	const form = event.target;
 	const payload = buildPayload(form);
+	
+	// Clear previous results immediately
+	clearPreviousResults();
 	
 	// Show loading in insights panel
 	showInsightsLoading();
@@ -407,10 +436,19 @@ function buildPredictionMarkup(data){
 		return `<p class="muted">${data.error}</p>`;
 	}
 	const pred = data.predicted_desired_savings ? Number(data.predicted_desired_savings).toLocaleString('en-IN') : 'N/A';
+	const desired = data.desired_savings_amount ? Number(data.desired_savings_amount).toLocaleString('en-IN') : null;
+	const shortfall = data.shortfall && data.shortfall > 0 ? Number(data.shortfall).toLocaleString('en-IN') : null;
 	const prob = typeof data.overspend_probability === 'number' ? `${(data.overspend_probability * 100).toFixed(1)}%` : 'N/A';
+	
+	let shortfallText = '';
+	if (shortfall && desired) {
+		shortfallText = `<p class="shortfall-warning">⚠️ Shortfall: ₹${shortfall}/month below your ₹${desired} goal</p>`;
+	}
+	
 	return `
 		<h4>Predicted Desired Savings</h4>
 		<p><strong>₹${pred}</strong> per month</p>
+		${shortfallText}
 		<p>Overspend probability: <strong>${prob}</strong></p>
 	`;
 }
