@@ -1,18 +1,18 @@
 {
-  "predicted_desired_savings": -541.33,
-  "overspend_probability": 0.06,
+  "predicted_desired_savings": 8486.77,
+  "overspend_probability": 0.0,
   "input": {
     "Income": 60000.0,
     "Age": 30.0,
-    "Dependents": 0.0,
+    "Dependents": 1.0,
     "Occupation_encoded": 1.0,
     "City_Tier_encoded": 1.0,
-    "Total_Expenses": 55000.0,
-    "Desired_Savings_Percentage": 45.0,
-    "Disposable_Income": 0.0,
-    "predicted_savings": -541.3284622653425
+    "Total_Expenses": 25000.0,
+    "Desired_Savings_Percentage": 15.0,
+    "Disposable_Income": 35000.0,
+    "predicted_savings": 8486.77351564169
   },
-  "generated_at": "2025-11-17T09:16:50.485711Z",
+  "generated_at": "2025-11-17T09:24:28.005254Z",
   "charts": {
     "scatter": {
       "income": [
@@ -122,18 +122,18 @@
         12
       ],
       "values": [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
+        8529.21,
+        17058.41,
+        25587.62,
+        34116.83,
+        42646.04,
+        51175.24,
+        59704.45,
+        68233.66,
+        76762.87,
+        85292.07,
+        93821.28,
+        102350.49
       ]
     },
     "heatmap": {
@@ -184,10 +184,9 @@
     }
   },
   "insights": [
-    "Your expenses are 91.7% of your income (₹55,000 / ₹60,000).",
-    "⚠️ Gap: Only ₹5,000 available, but ₹27,000 needed for 45.0% savings goal (shortfall: ₹22,000).",
-    "❌ Negative predicted savings: Your 45.0% target is unachievable with current expenses. Reduce expenses or adjust savings goal.",
-    "✓ Low overspending risk (6.0%). Income covers expenses + savings goals.",
-    "📊 Monthly deficit: -₹541.33 (-₹6,495.94 annually). Immediate action required."
+    "Your expenses are 41.7% of your income (₹25,000 / ₹60,000).",
+    "✓ Strong position: 58.3% of income available for savings.",
+    "✓ Low overspending risk (0.0%). Income covers expenses + savings goals.",
+    "📊 Predicted monthly savings: ₹8,486.77 (₹101,841.28 annually)."
   ]
 }
