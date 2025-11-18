@@ -65,6 +65,182 @@ function setupDisposableIncomeCalculation(form) {
 	
 	// Initial calculation
 	updateDisposableIncome();
+	
+	// Setup real-time expense warnings
+	setupExpenseWarnings(form);
+}
+
+function setupExpenseWarnings(form) {
+	const incomeInput = form.querySelector('[name="Income"]');
+	const cityTierSelect = form.querySelector('[name="City_Tier"]');
+	
+	// Get all expense input fields
+	const expenseFields = {
+		'Rent': form.querySelector('[name="Rent"]'),
+		'Loan_Repayment': form.querySelector('[name="Loan_Repayment"]'),
+		'Insurance': form.querySelector('[name="Insurance"]'),
+		'Groceries': form.querySelector('[name="Groceries"]'),
+		'Transport': form.querySelector('[name="Transport"]'),
+		'Eating_Out': form.querySelector('[name="Eating_Out"]'),
+		'Entertainment': form.querySelector('[name="Entertainment"]'),
+		'Utilities': form.querySelector('[name="Utilities"]'),
+		'Healthcare': form.querySelector('[name="Healthcare"]'),
+		'Education': form.querySelector('[name="Education"]'),
+		'Miscellaneous': form.querySelector('[name="Miscellaneous"]')
+	};
+	
+	// City-tier specific recommendations
+	const getCityRecommendations = (cityTier) => {
+		const recommendations = {
+			'Tier 1': {
+				'Rent': 35, 'Transport': 12, 'Eating_Out': 6, 'Groceries': 12,
+				'Utilities': 6, 'Entertainment': 6, 'Loan_Repayment': 10, 'Insurance': 5,
+				'Healthcare': 5, 'Education': 5, 'Miscellaneous': 5
+			},
+			'Tier 2': {
+				'Rent': 28, 'Transport': 10, 'Eating_Out': 5, 'Groceries': 10,
+				'Utilities': 5, 'Entertainment': 5, 'Loan_Repayment': 10, 'Insurance': 5,
+				'Healthcare': 5, 'Education': 5, 'Miscellaneous': 5
+			},
+			'Tier 3': {
+				'Rent': 20, 'Transport': 7, 'Eating_Out': 4, 'Groceries': 8,
+				'Utilities': 4, 'Entertainment': 4, 'Loan_Repayment': 10, 'Insurance': 5,
+				'Healthcare': 5, 'Education': 5, 'Miscellaneous': 5
+			}
+		};
+		return recommendations[cityTier] || recommendations['Tier 2'];
+	};
+	
+	// Advice messages for overspending
+	const getAdviceMessage = (category, cityTier) => {
+		const adviceMap = {
+			'Rent': cityTier === 'Tier 1' 
+				? 'Consider suburbs, co-living, or roommates in metro areas'
+				: 'Consider relocating to cheaper areas or finding roommates',
+			'Loan_Repayment': 'High debt burden. Consider debt consolidation, balance transfer, or longer tenure to reduce EMI.',
+			'Insurance': 'Review your policies. You may be over-insured (high premiums) or under-insured (inadequate coverage).',
+			'Groceries': cityTier === 'Tier 1'
+				? 'Shop at wholesale markets (D-Mart, Metro), use shopping lists, buy in bulk, reduce food waste'
+				: 'Buy seasonal produce, local markets cheaper than supermarkets, reduce packaged foods',
+			'Transport': cityTier === 'Tier 1'
+				? 'Use metro/local trains instead of cabs. Monthly passes save 40-50%. Carpool via apps.'
+				: 'Use public transport, carpool with colleagues, bike for short distances, avoid solo cabs',
+			'Eating_Out': cityTier === 'Tier 1'
+				? 'Meal prep at home saves 50-70%. Office lunches = ₹200-300/day waste. Cook bulk on weekends.'
+				: 'Home cooking saves 60-80%. Limit restaurants to 1-2x/month. Pack office lunch.',
+			'Entertainment': cityTier === 'Tier 1'
+				? 'Free city events, parks, museums on discount days. Shared OTT subscriptions. Cancel unused memberships.'
+				: 'Explore free local activities, community events, libraries. Cancel unused streaming services.',
+			'Utilities': cityTier === 'Tier 1'
+				? 'AC optimization saves ₹1000-2000/month. LED lights, unplug devices, 5-star rated appliances.'
+				: 'LED bulbs save 75% electricity. Optimize geyser usage. Unplug chargers. Check for leaks.',
+			'Healthcare': 'Review health insurance adequacy. Preventive care saves lakhs later. Generic medicines 50-80% cheaper.',
+			'Education': 'Explore online courses (Coursera, Udemy 90% off sales), scholarships, employer reimbursement programs.',
+			'Miscellaneous': 'Track ALL expenses for 1 month - identify impulse buys. 24-hour rule for purchases >₹1000. Cut subscriptions.'
+		};
+		return adviceMap[category] || 'Consider reducing this expense category';
+	};
+	
+	function showWarning(field, message, status) {
+		// Remove existing warning if any
+		removeWarning(field);
+		
+		// Create warning element
+		const warning = document.createElement('div');
+		warning.className = `expense-warning expense-warning-${status}`;
+		warning.innerHTML = `
+			<span class="warning-icon">${status === 'high' ? '🔴' : status === 'moderate' ? '🟡' : '🟢'}</span>
+			<span class="warning-text">${message}</span>
+		`;
+		
+		// Insert after the input field
+		field.parentNode.insertBefore(warning, field.nextSibling);
+		
+		// Update field border color
+		if (status === 'high') {
+			field.style.borderColor = '#ff4444';
+		} else if (status === 'moderate') {
+			field.style.borderColor = '#ffaa00';
+		} else {
+			field.style.borderColor = '#00ff88';
+		}
+	}
+	
+	function removeWarning(field) {
+		const existingWarning = field.parentNode.querySelector('.expense-warning');
+		if (existingWarning) {
+			existingWarning.remove();
+		}
+		field.style.borderColor = '';
+	}
+	
+	function checkExpenseField(category, field) {
+		const income = parseFloat(incomeInput.value) || 0;
+		const amount = parseFloat(field.value) || 0;
+		const cityTier = cityTierSelect ? cityTierSelect.value : 'Tier 2';
+		
+		if (income === 0 || amount === 0) {
+			removeWarning(field);
+			return;
+		}
+		
+		const recommendations = getCityRecommendations(cityTier);
+		const recommendedPct = recommendations[category];
+		const recommendedAmount = income * (recommendedPct / 100);
+		const userPct = (amount / income) * 100;
+		
+		if (amount > recommendedAmount * 1.3) {
+			// High - more than 30% above recommended
+			const excess = amount - recommendedAmount;
+			const advice = getAdviceMessage(category, cityTier);
+			showWarning(field, 
+				`⚠️ HIGH: ${userPct.toFixed(1)}% of income (Recommended: ${recommendedPct}%). Save ₹${excess.toFixed(0)}/month. ${advice}`,
+				'high'
+			);
+		} else if (amount > recommendedAmount * 1.1) {
+			// Moderate - 10-30% above recommended
+			const excess = amount - recommendedAmount;
+			showWarning(field,
+				`⚠️ MODERATE: ${userPct.toFixed(1)}% of income (Recommended: ${recommendedPct}%). Can save ₹${excess.toFixed(0)}/month.`,
+				'moderate'
+			);
+		} else {
+			// Good
+			showWarning(field,
+				`✓ GOOD: ${userPct.toFixed(1)}% of income (within ${recommendedPct}% recommendation for ${cityTier})`,
+				'good'
+			);
+		}
+	}
+	
+	// Add event listeners to all expense fields
+	Object.entries(expenseFields).forEach(([category, field]) => {
+		if (field) {
+			field.addEventListener('input', () => checkExpenseField(category, field));
+			field.addEventListener('blur', () => checkExpenseField(category, field));
+		}
+	});
+	
+	// Re-check all fields when income or city tier changes
+	if (incomeInput) {
+		incomeInput.addEventListener('input', () => {
+			Object.entries(expenseFields).forEach(([category, field]) => {
+				if (field && field.value) {
+					checkExpenseField(category, field);
+				}
+			});
+		});
+	}
+	
+	if (cityTierSelect) {
+		cityTierSelect.addEventListener('change', () => {
+			Object.entries(expenseFields).forEach(([category, field]) => {
+				if (field && field.value) {
+					checkExpenseField(category, field);
+				}
+			});
+		});
+	}
 }
 
 async function loadSampleDashboard(){
@@ -110,7 +286,7 @@ function renderSampleProfile(profile){
 	if (profile.Age !== undefined) pieces.push(`Age ${profile.Age}`);
 	if (profile.Dependents !== undefined) pieces.push(`Dependents ${profile.Dependents}`);
 	if (profile.City_Tier) pieces.push(profile.City_Tier);
-	domRefs.sampleProfile.textContent = `Sample (Step 7): ${pieces.join(' • ')}`;
+	domRefs.sampleProfile.textContent = `Sample Data: ${pieces.join(' • ')}`;
 	hydrateFormDefaults(profile);
 }
 
@@ -468,8 +644,8 @@ function renderExpenseBreakdown(breakdown){
 	}
 	
 	const html = breakdown.categories.map(cat => {
-		const statusClass = cat.status.includes('🔴') ? 'status-high' : 
-		                    cat.status.includes('🟡') ? 'status-moderate' : 'status-good';
+		const statusClass = cat.status.includes('\uD83D\uDD34') ? 'status-high' : 
+		                    cat.status.includes('\uD83D\uDFE1') ? 'status-moderate' : 'status-good';
 		return `
 			<div class="expense-category ${statusClass}">
 				<div class="category-header">
@@ -486,8 +662,8 @@ function renderExpenseBreakdown(breakdown){
 						<span>₹${cat.recommended_amount.toLocaleString('en-IN')} (${cat.recommended_percentage}%)</span>
 					</div>
 					<div class="detail-row">
-						<span>Dataset Average:</span>
-						<span>₹${cat.dataset_average.toLocaleString('en-IN')}</span>
+						<span>${breakdown.city_tier || 'City'} Average:</span>
+						<span>₹${cat.city_tier_average.toLocaleString('en-IN')}</span>
 					</div>
 					${cat.potential_saving > 0 ? `
 					<div class="detail-row saving">
@@ -532,7 +708,31 @@ function renderRecommendations(recommendations){
 		return;
 	}
 	
-	const html = recommendations.map(rec => `<li>${rec}</li>`).join('');
+	// Enhanced rendering with better formatting for sections
+	const html = recommendations.map(rec => {
+		// Skip separator lines and empty lines
+		if (!rec.trim() || rec.includes('====') || rec.match(/^=+$/)) {
+			return '';
+		}
+		
+		// Section headers (Unicode symbols with ALL CAPS)
+		if (rec.match(/^[\u25A0\u25B6\u25C6\u2713\u26A0\u2717\u2192]+\s+[A-Z\s&]+$/)) {
+			return `<li class="recommendation-section-header">${rec}</li>`;
+		}
+		
+		// Sub-headers with Unicode symbols
+		if (rec.match(/^\s*[\u25C6\u25B6\u2192\u2713\u26A0]+\s/)) {
+			return `<li class="recommendation-subheader">${rec}</li>`;
+		}
+		
+		// Indented items (start with spaces or bullet)
+		if (rec.match(/^\s{2,}[•\u2022]/) || rec.match(/^\s{2,}\d+\./)) {
+			return `<li class="recommendation-detail">${rec.trim()}</li>`;
+		}
+		
+		// Regular items
+		return `<li class="recommendation-item">${rec}</li>`;
+	}).filter(item => item !== '').join('');
 	
 	if (mainList) {
 		mainList.innerHTML = html;

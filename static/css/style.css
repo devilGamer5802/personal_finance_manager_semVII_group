@@ -581,6 +581,59 @@
  .expense-category.status-high { border-left:3px solid #ff4444; }
  .expense-category.status-moderate { border-left:3px solid #ffaa00; }
  .expense-category.status-good { border-left:3px solid #00ff88; }
+ 
+ /* Real-time expense warnings */
+ .expense-warning {
+	 display:flex;
+	 align-items:flex-start;
+	 gap:8px;
+	 margin-top:6px;
+	 padding:10px 12px;
+	 border-radius:8px;
+	 font-size:0.85rem;
+	 line-height:1.4;
+	 animation:fadeIn 0.3s ease-in-out;
+ }
+ 
+ .expense-warning-high {
+	 background:rgba(255,68,68,0.1);
+	 border:1px solid rgba(255,68,68,0.3);
+	 color:#ff6b6b;
+ }
+ 
+ .expense-warning-moderate {
+	 background:rgba(255,170,0,0.1);
+	 border:1px solid rgba(255,170,0,0.3);
+	 color:#ffaa00;
+ }
+ 
+ .expense-warning-good {
+	 background:rgba(0,255,136,0.1);
+	 border:1px solid rgba(0,255,136,0.3);
+	 color:#00ff88;
+ }
+ 
+ .warning-icon {
+	 flex-shrink:0;
+	 font-size:1rem;
+	 margin-top:1px;
+ }
+ 
+ .warning-text {
+	 flex:1;
+ }
+ 
+ @keyframes fadeIn {
+	 from {
+		 opacity:0;
+		 transform:translateY(-5px);
+	 }
+	 to {
+		 opacity:1;
+		 transform:translateY(0);
+	 }
+ }
+ 
  .category-header {
 	 display:flex;
 	 justify-content:space-between;
@@ -652,6 +705,39 @@
 	 border-left:3px solid var(--accent);
 	 font-size:0.9rem;
  }
+ 
+ /* Enhanced recommendation item styles */
+ .recommendation-section-header {
+	 background:linear-gradient(135deg,#1a1a2e,#16213e) !important;
+	 border-left:4px solid var(--accent) !important;
+	 font-weight:700;
+	 font-size:1rem !important;
+	 padding:14px 16px !important;
+	 margin:16px 0 10px 0 !important;
+	 letter-spacing:0.5px;
+	 text-transform:uppercase;
+ }
+ 
+ .recommendation-subheader {
+	 background:#0a0a0a !important;
+	 border-left:3px solid #ffaa00 !important;
+	 font-weight:600;
+	 padding:12px 14px !important;
+	 margin-bottom:6px !important;
+	 color:#ffdd77;
+ }
+ 
+ .recommendation-detail {
+	 background:#060606 !important;
+	 border-left:2px solid #444 !important;
+	 padding:8px 12px 8px 24px !important;
+	 margin-bottom:4px !important;
+	 margin-left:20px;
+	 font-size:0.85rem !important;
+	 color:#b0b0b0;
+ }
+ 
+
 
  /* Tooltip Styles */
  label[title] {
