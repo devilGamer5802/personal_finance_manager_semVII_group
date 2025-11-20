@@ -12,6 +12,8 @@ let formsHydrated = false;
 
 document.addEventListener('DOMContentLoaded', () => {
 	captureDomRefs();
+	initThemeToggle();
+	initPrintButton();
 	const dashboardCharts = document.querySelector('[data-charts]');
 	if (dashboardCharts) {
 		loadSampleDashboard();
@@ -30,6 +32,82 @@ document.addEventListener('DOMContentLoaded', () => {
 		setupDisposableIncomeCalculation(inputForm);
 	}
 });
+
+function initThemeToggle() {
+	const themeToggle = document.getElementById('theme-toggle');
+	const themeIcon = document.getElementById('theme-icon');
+	const themeLabel = document.getElementById('theme-label');
+	const themeMenu = document.getElementById('theme-menu');
+	
+	if (!themeToggle) return;
+	
+	// Load saved theme from localStorage or default to system
+	const savedTheme = localStorage.getItem('theme') || 'system';
+	applyTheme(savedTheme);
+	updateThemeButton(savedTheme);
+	
+	// Toggle theme menu on button click
+	themeToggle.addEventListener('click', (e) => {
+		e.stopPropagation();
+		themeMenu.classList.toggle('show');
+	});
+	
+	// Close menu when clicking outside
+	document.addEventListener('click', () => {
+		themeMenu.classList.remove('show');
+	});
+	
+	// Theme option clicks
+	document.querySelectorAll('.theme-option').forEach(option => {
+		option.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const theme = option.dataset.theme;
+			localStorage.setItem('theme', theme);
+			applyTheme(theme);
+			updateThemeButton(theme);
+			themeMenu.classList.remove('show');
+		});
+	});
+	
+	// Listen for system theme changes
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+		const currentTheme = localStorage.getItem('theme') || 'system';
+		if (currentTheme === 'system') {
+			applyTheme('system');
+		}
+	});
+	
+	function applyTheme(theme) {
+		let actualTheme = theme;
+		
+		if (theme === 'system') {
+			// Detect system preference
+			actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}
+		
+		if (actualTheme === 'light') {
+			document.body.classList.remove('theme-dark');
+			document.body.classList.add('theme-light');
+		} else {
+			document.body.classList.remove('theme-light');
+			document.body.classList.add('theme-dark');
+		}
+	}
+	
+	function updateThemeButton(theme) {
+		if (theme === 'system') {
+			const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+			themeIcon.textContent = systemTheme === 'dark' ? '☾' : '☀';
+			themeLabel.textContent = 'Theme';
+		} else if (theme === 'light') {
+			themeIcon.textContent = '☀';
+			themeLabel.textContent = 'Light';
+		} else {
+			themeIcon.textContent = '☾';
+			themeLabel.textContent = 'Dark';
+		}
+	}
+}
 
 function captureDomRefs(){
 	domRefs.insightsList = document.getElementById('insights-list');
@@ -291,13 +369,12 @@ function renderSampleProfile(profile){
 }
 
 function hydrateFormDefaults(profile){
-	if (formsHydrated) return;
 	const forms = [document.getElementById('prediction-form'), document.getElementById('input-form')].filter(Boolean);
 	if (!forms.length) return;
 	forms.forEach((form) => {
 		Object.entries(profile).forEach(([key, value]) => {
 			const field = form.querySelector(`[name="${key}"]`);
-			if (field && field.type !== 'select-one') {
+			if (field && field.type !== 'select-one' && !field.readOnly) {
 				field.value = value;
 			}
 		});
@@ -314,6 +391,12 @@ function hydrateFormDefaults(profile){
 				ensureOption(city, profile.City_Tier);
 				city.value = profile.City_Tier;
 			}
+		}
+		
+		// Trigger disposable income recalculation
+		const incomeField = form.querySelector('[name="Income"]');
+		if (incomeField) {
+			incomeField.dispatchEvent(new Event('input', { bubbles: true }));
 		}
 	});
 	formsHydrated = true;
@@ -715,13 +798,15 @@ function renderRecommendations(recommendations){
 			return '';
 		}
 		
-		// Section headers (Unicode symbols with ALL CAPS)
-		if (rec.match(/^[\u25A0\u25B6\u25C6\u2713\u26A0\u2717\u2192]+\s+[A-Z\s&]+$/)) {
+		// Section headers (Emoji icons with ALL CAPS)
+		// Matches lines like: "📋 EXPENSE OPTIMIZATION STRATEGY"
+		if (rec.match(/^[📋💰📊✅⚠️❌➤\u{1F4CB}\u{1F4B0}\u{1F4CA}\u{2705}\u{26A0}\u{FE0F}\u{274C}\u{27A4}]+\s+[A-Z\s&:]+$/u)) {
 			return `<li class="recommendation-section-header">${rec}</li>`;
 		}
 		
-		// Sub-headers with Unicode symbols
-		if (rec.match(/^\s*[\u25C6\u25B6\u2192\u2713\u26A0]+\s/)) {
+		// Sub-headers with emoji icons
+		// Matches lines like: "📊 BALANCED GROWTH PORTFOLIO" or "💰 Available for Investments"
+		if (rec.match(/^\s*[📊💰➤✅⚠️\u{1F4CA}\u{1F4B0}\u{27A4}\u{2705}\u{26A0}\u{FE0F}]+\s/u)) {
 			return `<li class="recommendation-subheader">${rec}</li>`;
 		}
 		
@@ -737,10 +822,44 @@ function renderRecommendations(recommendations){
 	if (mainList) {
 		mainList.innerHTML = html;
 		mainPanel.style.display = 'block';
+		// Show print button after recommendations are displayed
+		const printBtn = document.getElementById('print-report-btn');
+		if (printBtn) printBtn.style.display = 'flex';
 	}
 	if (altList) {
 		altList.innerHTML = html;
 		altPanel.style.display = 'block';
+		// Show print button after recommendations are displayed
+		const printBtnAlt = document.getElementById('print-report-btn-alt');
+		if (printBtnAlt) printBtnAlt.style.display = 'flex';
 	}
 }
+
+function printFinancialReport() {
+	// Add print-specific title
+	const originalTitle = document.title;
+	document.title = 'Financial Analysis Report - Personal Finance Manager';
+	
+	// Trigger print dialog
+	window.print();
+	
+	// Restore original title
+	setTimeout(() => {
+		document.title = originalTitle;
+	}, 1000);
+}
+
+function initPrintButton() {
+	const printBtn = document.getElementById('print-report-btn');
+	const printBtnAlt = document.getElementById('print-report-btn-alt');
+	
+	if (printBtn) {
+		printBtn.addEventListener('click', printFinancialReport);
+	}
+	
+	if (printBtnAlt) {
+		printBtnAlt.addEventListener('click', printFinancialReport);
+	}
+}
+
 

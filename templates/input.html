@@ -12,16 +12,31 @@
   <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
 </head>
 <body class="theme-dark alt-page">
-  <nav class="top-nav">
-    <div class="brand-mini">
-      <span class="logo">₹</span>
-      <h1>Personal Finance Manager</h1>
+  <div class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon" id="theme-icon">☀</span>
+    <span id="theme-label">Theme</span>
+  </div>
+  <div class="theme-menu" id="theme-menu">
+    <div class="theme-option" data-theme="light">
+      <span class="theme-option-icon">☀</span>
+      <span>Light</span>
     </div>
-    <a class="nav-link" href="/">📊 Dashboard</a>
-  </nav>
+    <div class="theme-option" data-theme="dark">
+      <span class="theme-option-icon">☾</span>
+      <span>Dark</span>
+    </div>
+    <div class="theme-option" data-theme="system">
+      <span class="theme-option-icon">⚙</span>
+      <span>System</span>
+    </div>
+  </div>
   
   <main class="input-container">
     <section class="input-hero">
+      <a href="/" class="back-button">
+        <span>←</span>
+        <span>Back to Dashboard</span>
+      </a>
       <div class="hero-content">
         <p class="eyebrow">Input Studio</p>
         <h2>Comprehensive Financial Analysis</h2>
@@ -107,10 +122,10 @@
 
           <div class="form-row">
             <div class="form-field full-width">
-              <label title="Auto-calculated: Income minus Total Expenses">
-                Disposable Income (₹) <span class="muted small">(Auto)</span>
+              <label title="Auto-calculated: Income minus Total Expenses" class="readonly-label">
+                Disposable Income (₹)
               </label>
-              <input type="number" name="Disposable_Income" step="100" min="0" value="35000" required placeholder="Auto-calculated" readonly>
+              <input type="number" name="Disposable_Income" step="100" min="0" value="35000" required placeholder="Auto-calculated" readonly class="readonly-input">
               <span class="field-hint">Automatically calculated: Income - Total Expenses</span>
             </div>
           </div>
@@ -245,6 +260,10 @@
             <h4>💡 Recommendations</h4>
             <ul id="recommendations-list-alt"></ul>
           </div>
+          <button id="print-report-btn-alt" class="print-report-button" style="display: none;">
+            <span>🖨️</span>
+            <span>Print Financial Report</span>
+          </button>
         </div>
       </aside>
     </div>

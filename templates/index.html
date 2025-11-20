@@ -12,6 +12,24 @@
 	<script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
 </head>
 <body class="theme-dark">
+	<div class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+		<span class="theme-icon" id="theme-icon">☀</span>
+		<span id="theme-label">Theme</span>
+	</div>
+	<div class="theme-menu" id="theme-menu">
+		<div class="theme-option" data-theme="light">
+			<span class="theme-option-icon">☀</span>
+			<span>Light</span>
+		</div>
+		<div class="theme-option" data-theme="dark">
+			<span class="theme-option-icon">☾</span>
+			<span>Dark</span>
+		</div>
+		<div class="theme-option" data-theme="system">
+			<span class="theme-option-icon">⚙</span>
+			<span>System</span>
+		</div>
+	</div>
 	<div class="shell">
 		<aside class="side-rail">
 			<div class="brand">
@@ -59,8 +77,8 @@
 						<label title="Percentage of income you want to save each month (e.g., 15 means 15%)">Desired Savings %
 							<input type="number" name="Desired_Savings_Percentage" step="0.1" value="15" required placeholder="e.g., 15">
 						</label>
-					<label title="Auto-calculated: Income minus Total Expenses">Disposable Income (₹) <span class="muted small">(Auto)</span>
-						<input type="number" name="Disposable_Income" step="100" value="35000" required placeholder="Auto-calculated" readonly>
+					<label title="Auto-calculated: Income minus Total Expenses" class="readonly-label">Disposable Income (₹)
+						<input type="number" name="Disposable_Income" step="100" value="35000" required placeholder="Auto-calculated" readonly class="readonly-input">
 					</label>
 						<label title="Your primary occupation or employment status">Occupation
 							<select name="Occupation" id="occupation-select" required>
@@ -166,6 +184,10 @@
 			<h4>💡 Personalized Recommendations</h4>
 			<ul id="recommendations-list"></ul>
 		</div>
+		<button id="print-report-btn" class="print-report-button" style="display: none;">
+			<span>🖨️</span>
+			<span>Print Financial Report</span>
+		</button>
 	</section>
 
 
